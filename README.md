@@ -5,7 +5,7 @@ The paper:
 
 The orignal tensorflow implementation can be found in [CAN](https://github.com/mengzaiqiao/CAN)
 
-A semi-supervised version of the CAN model  implemented by Pytorch can be found in [SCAN-Pytorch]()
+A semi-supervised version of the CAN model  implemented by Pytorch can be found in [SCAN-Pytorch](https://github.com/GuanZhengChen/SCAN-Pytorch)
 
 The orignal tensorflow implementation for SCAN can be found in [SCAN](https://github.com/mengzaiqiao/SCAN)
 ## Introduction
