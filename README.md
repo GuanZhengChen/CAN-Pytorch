@@ -1,4 +1,3 @@
-@@ -0,0 +1,38 @@
 ## CAN: Co-embedding Attributed Networks
 This repository contains the Python&Pytorch implementation for CAN. Further details about CAN can be found in 
 The paper:
@@ -6,7 +5,7 @@ The paper:
 
 The orignal tensorflow implementation can be found in [CAN](https://github.com/mengzaiqiao/CAN)
 
-A semi-supervised version of the CAN model  implemented by Pytorch can be found in [SCAN-Pytorch]()
+A semi-supervised version of the CAN model  implemented by Pytorch can be found in [SCAN-Pytorch](https://github.com/GuanZhengChen/SCAN-Pytorch)
 
 The orignal tensorflow implementation for SCAN can be found in [SCAN](https://github.com/mengzaiqiao/SCAN)
 ## Introduction
@@ -15,7 +14,7 @@ I try to keep the structure like tensorflow implementation,but there is also som
 
 >For computing the loss directly,i move part of the optimizer.py into train.py.
 
->I don't find the funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch,so I implemented by myself.It need computer torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits)), if some values in logits too large or to small, act it by sigmod may get 1 or 0 and get -lnf after log. Therefore, i clamp the logits value from -10 to 10(i believe tensorflow do the same thing in the function)
+>I don't find the funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch,so I implemented by myself.It need computer torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits)), if some values in logits too large or to small, act it by sigmod may get 1 or 0 and get -lnf after log. Therefore, i clamp the logits value from -10 to 10.
 
 ```python
 def weighted_cross_entropy_with_logits(logits, targets, pos_weight):
@@ -38,3 +37,29 @@ def weighted_cross_entropy_with_logits(logits, targets, pos_weight):
 ```bash
 python train.py
 ```
+
+## Result
+
+The  Link prediction performance AUC&AP score :
+
+| Dataset | AUC | AP |
+| :--- | :------: | :------: |
+| BLOGCATALOG | 0.820 | 0.822 |
+| CORA | 0.989 | 0.988 |
+| CITESEER | 0.993 | 0.989 |
+| DBLP | 0.927 | 0.921 |
+| FLICKR | 0.894 | 0.910 |
+| FACEBOOK | 0.989 | 0.987 |
+
+The  Attribute inference performance AUC&AP score :
+
+| Dataset | AUC | AP |
+| :--- | :------: | :------: |
+| BLOGCATALOG | 0.876 | 0.876 |
+| CORA | 0.932 | 0.916 |
+| CITESEER | 0.949 | 0.934 |
+| DBLP | 0.899 | 0.902 |
+| FLICKR | 0.856 | 0.844 |
+| FACEBOOK | 0.976 | 0.973 |
+
+

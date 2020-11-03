@@ -17,6 +17,8 @@ from model import CAN
 from preprocessing import preprocess_graph, construct_feed_dict, sparse_to_tuple, mask_test_edges, mask_test_feas
 # Train on CPU (hide GPU) due to memory constraints
 os.environ['CUDA_VISIBLE_DEVICES'] = ""
+use_gpu = torch.cuda.is_available()
+device = torch.device('cuda' if use_gpu else 'cpu')
 # Settings
 
 parser = argparse.ArgumentParser()
@@ -34,7 +36,7 @@ parser.add_argument('--dropout', type=float, default=0.,
                     help='Dropout rate (1 - keep probability).')
 parser.add_argument('--dataset', type=str, default="cora",
                     help='Dataset string.')
-args = parser.parse_args()
+args = parser.parse_args(args=[])
 dataset_str = args.dataset
 
 # Load data
@@ -63,7 +65,7 @@ features = sparse_to_tuple(features.tocoo())
 num_features = features[2][1]
 features_nonzero = features[1].shape[0]
 # Create model
-model = CAN(args.hidden1,args.hidden2,num_features, num_nodes, features_nonzero,args.dropout)
+model = CAN(args.hidden1,args.hidden2,num_features, num_nodes, features_nonzero,args.dropout).to(device)
 pos_weight_u = float(adj.shape[0] * adj.shape[0] - adj.sum()) / adj.sum()
 norm_u = adj.shape[0] * adj.shape[0] / float((adj.shape[0] * adj.shape[0] - adj.sum()) * 2)
 pos_weight_a = float(features[2][0] * features[2][1] - len(features[1])) / len(features[1])
@@ -84,7 +86,10 @@ def get_roc_score(edges_pos, edges_neg,preds_sub_u):
 
     # Predict on test set of edges
     # adj_rec = sess.run(model.reconstructions[0], feed_dict=feed_dict).reshape([num_nodes, num_nodes])
-    adj_rec=preds_sub_u.view(num_nodes,num_nodes).data.numpy()
+    if(use_gpu):
+        adj_rec=preds_sub_u.view(num_nodes,num_nodes).cpu().data.numpy()
+    else:
+        adj_rec=preds_sub_u.view(num_nodes,num_nodes).data.numpy()
     preds = []
     pos = []
     for e in edges_pos:
@@ -113,7 +118,10 @@ def get_roc_score_a(feas_pos, feas_neg,preds_sub_a):
 
     # Predict on test set of edges
     # fea_rec = sess.run(model.reconstructions[1], feed_dict=feed_dict).reshape([num_nodes, num_features])
-    fea_rec = preds_sub_a.view(num_nodes, num_features).data.numpy()
+    if(use_gpu):
+        fea_rec = preds_sub_a.view(num_nodes, num_features).cpu().data.numpy()
+    else:
+        fea_rec = preds_sub_a.view(num_nodes, num_features).data.numpy()
     preds = []
     pos = []
     for e in feas_pos:
@@ -144,8 +152,8 @@ val_roc_score = []
 adj_label = adj_train + sp.eye(adj_train.shape[0])
 adj_label = sparse_to_tuple(adj_label)
 features_label = sparse_to_tuple(features_orig)
-features=torch.sparse.FloatTensor(torch.LongTensor(features[0]).t(),torch.FloatTensor(features[1]),features[2])
-adj_norm=torch.sparse.FloatTensor(torch.LongTensor(adj_norm[0].astype(np.int32)).t(), torch.FloatTensor(adj_norm[1]), adj_norm[2])
+features=torch.sparse.FloatTensor(torch.LongTensor(features[0]).t(),torch.FloatTensor(features[1]),features[2]).to(device)
+adj_norm=torch.sparse.FloatTensor(torch.LongTensor(adj_norm[0].astype(np.int32)).t(), torch.FloatTensor(adj_norm[1]), adj_norm[2]).to(device)
 # Train model
 for epoch in range(args.epochs):
     model.train()
@@ -154,8 +162,8 @@ for epoch in range(args.epochs):
     #Get result
     preds_sub_u, preds_sub_a,z_u_mean,z_u_log_std,z_a_mean,z_a_log_std=model(features,adj_norm)
 
-    labels_sub_u=torch.from_numpy(adj_orig.toarray()).flatten().float()
-    labels_sub_a=torch.from_numpy(features_orig.toarray()).flatten().float()
+    labels_sub_u=torch.from_numpy(adj_orig.toarray()).flatten().float().to(device)
+    labels_sub_a=torch.from_numpy(features_orig.toarray()).flatten().float().to(device)
     cost_u = norm_u * torch.mean(weighted_cross_entropy_with_logits(logits=preds_sub_u, targets=labels_sub_u, pos_weight=pos_weight_u))
     cost_a = norm_a * torch.mean(weighted_cross_entropy_with_logits(logits=preds_sub_a, targets=labels_sub_a, pos_weight=pos_weight_a))
     
@@ -199,6 +207,12 @@ print("Optimization Finished!")
 preds_sub_u, preds_sub_a,z_u_mean,z_u_log_std,z_a_mean,z_a_log_std=model(features,adj_norm)    
 roc_score, ap_score = get_roc_score(test_edges, test_edges_false,preds_sub_u)
 roc_score_a, ap_score_a = get_roc_score_a(test_feas, test_feas_false,preds_sub_a)
+
+if use_gpu:
+    z_u_mean = z_u_mean.cpu()
+    z_a_mean = z_a_mean.cpu()
+    z_u_log_std = z_u_log_std.cpu()
+    z_a_log_std = z_a_log_std.cpu()
 
 np.save(embedding_node_mean_result_file, z_u_mean.data.numpy())
 np.save(embedding_attr_mean_result_file, z_a_mean.data.numpy())
