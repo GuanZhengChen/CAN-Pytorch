@@ -62,4 +62,12 @@ The  Attribute inference performance AUC&AP score :
 | FLICKR | 0.856 | 0.844 |
 | FACEBOOK | 0.976 | 0.973 |
 
+The  node classification performance Micro_F1&Macro_F1 score :
+
+| Dataset | Micro_F1 | Macro_F1 |
+| :--- | :------: | :------: |
+| BLOGCATALOG | 0.760 | 0.755 |
+| CORA | 0.869 | 0.857 |
+| CITESEER | 0.743 | 0.689 |
+| FLICKR |  0.634 | 0.629 |
 
