@@ -14,6 +14,7 @@ class CAN(nn.Module):
         self.features_nonzero = features_nonzero
         self.n_samples = num_nodes
         self.dropout = dropout
+        '''init里定义的这些layer的参数都是传到对应layer的init处'''
         self.hidden1 = GraphConvolutionSparse(input_dim=self.input_dim,output_dim=hidden1,dropout=self.dropout,features_nonzero=self.features_nonzero)
                                               
         self.hidden2 = Dense(input_dim=self.n_samples,output_dim=hidden1,sparse_inputs=True)
@@ -28,7 +29,10 @@ class CAN(nn.Module):
 
         self.reconstructions = InnerDecoder(input_dim=hidden2)
 
+    '''模型本质就是两个VAE,一个VAE对x和adj的乘积做encoding生成均值z_u_mean,方差(这里是方差的log)z_u_log_std，做decoding生成preds_sub_u
+    另一个对x的转置做生成z_a_mean,z_a_log_std和preds_sub_a'''
     def encode(self, x,adj):
+        '''在forward中调用的layer的参数传到对应layer的forward处'''
         z_u = F.relu(self.hidden1(x,adj))
         z_a = torch.tanh(self.hidden2(x.t()))
         return self.z_u_mean(z_u,adj), self.z_u_log_std(z_u,adj),self.z_a_mean(z_a), self.z_a_log_std(z_a)

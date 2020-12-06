@@ -65,6 +65,8 @@ features = sparse_to_tuple(features.tocoo())
 num_features = features[2][1]
 features_nonzero = features[1].shape[0]
 # Create model
+#args can be one parameter
+#创建model这里的参数是传到CAN的构造函数(init)处
 model = CAN(args.hidden1,args.hidden2,num_features, num_nodes, features_nonzero,args.dropout).to(device)
 pos_weight_u = float(adj.shape[0] * adj.shape[0] - adj.sum()) / adj.sum()
 norm_u = adj.shape[0] * adj.shape[0] / float((adj.shape[0] * adj.shape[0] - adj.sum()) * 2)
@@ -152,6 +154,8 @@ val_roc_score = []
 adj_label = adj_train + sp.eye(adj_train.shape[0])
 adj_label = sparse_to_tuple(adj_label)
 features_label = sparse_to_tuple(features_orig)
+'''sparse_to_tuple返回三个参数，第1个的index，即指明哪一行哪一列有指，第2个就是具体的value，第三个是矩阵的维度
+这三个参数刚好是torch.sparse将稠密矩阵转成稀疏矩阵的参数，具体可以查官网文档'''
 features=torch.sparse.FloatTensor(torch.LongTensor(features[0]).t(),torch.FloatTensor(features[1]),features[2]).to(device)
 adj_norm=torch.sparse.FloatTensor(torch.LongTensor(adj_norm[0].astype(np.int32)).t(), torch.FloatTensor(adj_norm[1]), adj_norm[2]).to(device)
 # Train model
@@ -160,6 +164,7 @@ for epoch in range(args.epochs):
     t = time.time()
     optimizer.zero_grad()
     #Get result
+    '''train model这里参数传到CAN的forward处，features即论文模型图中的X矩阵(结点属性矩阵)，adj_norm是模型中的A矩阵，即邻接矩阵'''
     preds_sub_u, preds_sub_a,z_u_mean,z_u_log_std,z_a_mean,z_a_log_std=model(features,adj_norm)
 
     labels_sub_u=torch.from_numpy(adj_orig.toarray()).flatten().float().to(device)

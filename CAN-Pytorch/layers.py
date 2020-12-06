@@ -22,7 +22,9 @@ def weight_variable_glorot(input_dim, output_dim):
     # tf.random_uniform([input_dim, output_dim], minval=-init_range,maxval=init_range, dtype=tf.float32)
     return nn.Parameter(initial, requires_grad=True)
 
-
+'''以下两个layer都是GCN，只是一个(带sparse)接受的x是稀疏的，另一个是稠密的
+因为刚开始x是稀疏的，所以第一个GCN是带sparse，运算得到的结果是稠密的作为下一个GCN输入的x，就不用是sparse的了
+'''
 class GraphConvolution(nn.Module):
     """Basic graph convolution layer for undirected graph without edge labels."""
 
@@ -54,7 +56,7 @@ class GraphConvolutionSparse(nn.Module):
         outputs = torch.mm(adj.to_dense(), x)
         return outputs
 
-
+'''Dense接收的就是x的转置矩阵，运算过程很简单'''
 class Dense(nn.Module):
     """Dense layer."""
 
@@ -66,7 +68,7 @@ class Dense(nn.Module):
         self.bias = bias
         # helper variable for sparse dropout
         self.sparse_inputs = sparse_inputs
-
+        #Parameter with requires_grad=True(default) mean nead to compute gradient
         self.weights = weight_variable_glorot(input_dim, output_dim)
         if self.bias:
             self.bias = Parameter(torch.zeros([output_dim], dtype=torch.float32))
@@ -84,28 +86,6 @@ class Dense(nn.Module):
 
         return output
 
-
-# class InnerProductDecoder(nn.Module):
-#     """Decoder model layer for link prediction."""
-
-#     def __init__(self, input_dim, dropout=0., act=tf.nn.sigmoid, **kwargs):
-#         super(InnerProductDecoder, self).__init__(**kwargs)
-#         self.dropout = dropout
-#         self.act = act
-
-#     def forward(self, inputs):
-#         inputs = nn.Dropout(inputs, 1 - self.dropout)#修改
-#         print("inputs.shape:", inputs)
-#         x = inputs.t()####修改
-#         x = torch.mm(inputs, x)
-#         print("x = tf.matmul(inputs, x):", x)
-
-#         x = x.view(-1)#######修改
-#         outputs = self.act(x)
-#         return outputs
-
-
-
 class InnerDecoder(nn.Module):
     """Decoder model layer for link prediction."""
 
@@ -122,4 +102,4 @@ class InnerDecoder(nn.Module):
         y = torch.mm(z_u, z_a_t)
         edge_outputs = x.flatten()
         attri_outputs = y.flatten()
-        return edge_outputs, attri_outputs
+        return edge_outputs,attri_outputs
