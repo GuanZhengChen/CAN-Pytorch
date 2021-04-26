@@ -14,7 +14,7 @@ I try to keep the structure like tensorflow implementation,but there is also som
 
 >For computing the loss directly,i move part of the optimizer.py into train.py.
 
->I don't find the funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch,so I implemented by myself.It need computer torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits)), if some values in logits too large or to small, act it by sigmod may get 1 or 0 and get -lnf after log. Therefore, i clamp the logits value from -10 to 10.
+>I don't find the funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch,so I implemented by myself. It need compute torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits)), if some values in logits too large or too small, act it by sigmod may get 1 or 0 and get -lnf after log. Therefore, I clamp the logits value from -10 to 10.
 
 ```python
 def weighted_cross_entropy_with_logits(logits, targets, pos_weight):
