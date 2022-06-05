@@ -5,16 +5,14 @@ The paper:
 
 The orignal tensorflow implementation can be found in [CAN](https://github.com/mengzaiqiao/CAN)
 
-A semi-supervised version of the CAN model  implemented by Pytorch can be found in [SCAN-Pytorch](https://github.com/GuanZhengChen/SCAN-Pytorch)
+A semi-supervised version of the CAN model implemented by Pytorch can be found in [SCAN-Pytorch](https://github.com/GuanZhengChen/SCAN-Pytorch)
 
 The orignal tensorflow implementation for SCAN can be found in [SCAN](https://github.com/mengzaiqiao/SCAN)
-## Introduction
+## Differences with tensorflow implementation
 
-I try to keep the structure like tensorflow implementation,but there is also some changes:
+>For computing the loss directly, I move part of the optimizer.py into train.py.
 
->For computing the loss directly,i move part of the optimizer.py into train.py.
-
->I don't find the funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch,so I implemented by myself. It need compute torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits)), if some values in logits too large or too small, act it by sigmod may get 1 or 0 and get -lnf after log. Therefore, I clamp the logits value from -10 to 10.
+>There is no funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch,so I implemented by myself. To avoid the overflowing issue dropped by sigmod (when computing the torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits))), I clamp the logits value from -10 to 10.
 
 ```python
 def weighted_cross_entropy_with_logits(logits, targets, pos_weight):
