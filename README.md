@@ -3,11 +3,11 @@ This repository contains the Python&Pytorch implementation for CAN. Further deta
 The paper:
 > Zaiqiao Meng, Shangsong Liang, Hongyan Bao, Xiangliang Zhang. Co-embedding Attributed Networks. (WSDM2019)
 
-The orignal tensorflow implementation can be found in [CAN](https://github.com/mengzaiqiao/CAN)
+The orignal tensorflow implementation can be found in [CAN](https://github.com/mengzaiqiao/CAN).
 
-A semi-supervised version of the CAN model implemented by Pytorch can be found in [SCAN-Pytorch](https://github.com/GuanZhengChen/SCAN-Pytorch)
+A semi-supervised version of the CAN model implemented by Pytorch can be found in [SCAN-Pytorch](https://github.com/GuanZhengChen/SCAN-Pytorch).
 
-The orignal tensorflow implementation for SCAN can be found in [SCAN](https://github.com/mengzaiqiao/SCAN)
+The orignal tensorflow implementation for SCAN can be found in [SCAN](https://github.com/mengzaiqiao/SCAN).
 ## Differences with tensorflow implementation
 
 >For computing the loss directly, I move part of the optimizer.py into train.py.
