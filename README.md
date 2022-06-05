@@ -8,11 +8,12 @@ The orignal tensorflow implementation can be found in [CAN](https://github.com/m
 A semi-supervised version of the CAN model implemented by Pytorch can be found in [SCAN-Pytorch](https://github.com/GuanZhengChen/SCAN-Pytorch).
 
 The orignal tensorflow implementation for SCAN can be found in [SCAN](https://github.com/mengzaiqiao/SCAN).
+
 ## Differences with tensorflow implementation
 
 >For computing the loss directly, I move part of the optimizer.py into train.py.
 
->There is no funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch,so I implemented by myself. To avoid the overflowing issue dropped by sigmod (when computing the torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits))), I clamp the logits value from -10 to 10.
+>There is no funtion like tf.nn.weighted_cross_entropy_with_logits() in pytorch, so I implement it by myself. To avoid the overflowing issue dropped by sigmod (when computing the torch.log(torch.sigmoid(logits)) and torch.log(1 - torch.sigmoid(logits))), I clamp the logits value from -10 to 10.
 
 ```python
 def weighted_cross_entropy_with_logits(logits, targets, pos_weight):
